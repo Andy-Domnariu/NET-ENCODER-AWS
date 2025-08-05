@@ -1,6 +1,6 @@
 import logging
 import sys
-# from src.lib.utils.log_db_handler import DBLogHandler  # Comentado para evitar dependencia de Django
+
 
 class CustomLogHandler(logging.Handler):
     """Handler personalizado que RESPETA niveles de logging"""

@@ -256,37 +256,4 @@ class NetEncoderHandler:
         }
 
 
-# ----- Main for quick testing of the handler -----
-# def main():
-#     import json
 
-    
-#     # Define the perfect final sector data dictionary.
-#     final_sector_data = {
-#         "4": "325800000503F8035DB88387C993035D",
-#         "5": "B88387C994035DB88387C996035DB883",
-#         "6": "87C997035DB88387C999000000000001",
-#         "8": "CA88F59602DEC1AF6E22B13EBF79CD1D",
-#         "9": "AA200745198B2A49DCEFB823C9CBD119",
-#         "10": "EA205A879F4CFB5E88FE482463DC03BC",
-#         "12": "54156748E6B139F988B6C0805CAEDCE7",
-#         "13": "43236222FE70B3CFCB42330383E019C9",
-#         "14": "D26513B77DE1BD11926E186E2D3DBAF4"
-#     }
-    
-#     ip_address = "192.168.1.190"  # Replace with your encoder IP if needed.
-#     port = 6000                 # Replace with your encoder port.
-#     encrypted_key = "VOV8fGOVUKBlUVVmOAVqVIVf"  # Your encrypted IC key.
-#     hotel_info = "TEST_HOTEL"
-#     lock_timezone = "GMT+0"
-    
-#     # Instantiate the handler (it will decrypt the key internally).
-#     handler = NetEncoderHandler(ip_address, port, encrypted_key)
-    
-#     # Here we pass the final sector data dictionary directly (which is already in perfect format).
-#     result = handler.write_card_data(final_sector_data)
-#     print("Write Card Result:")
-#     print(json.dumps(result, indent=2))
-
-# if __name__ == "__main__":
-#     main()
