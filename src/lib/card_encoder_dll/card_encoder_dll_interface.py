@@ -91,7 +91,7 @@ class CardEncoderDLLInterface:
             ctypes.c_bool,
             ctypes.c_int,
             ctypes.c_int,
-            ctypes.c_char_p,
+            ctypes.c_void_p,  # mac - cambiado de c_char_p a c_void_p para aceptar 0
             ctypes.c_ulong,
             ctypes.c_bool,
         ]
@@ -202,7 +202,7 @@ class CardEncoderDLLInterface:
         is_lowest_sector: bool,
         build_no: int,
         floor_no: int,
-        mac: str,
+        mac,  # Cambiado de str a cualquier tipo para aceptar 0
         timestamp: int,
         allow_lock_out: bool,
     ) -> List[int]:
@@ -227,7 +227,27 @@ class CardEncoderDLLInterface:
 
             # Convertions.
             hotel_info_bytes = hotel_info.encode("utf-8") + b"\x00"
-            mac_bytes = mac.encode("utf-8") + b"\x00"
+            
+            # MAC: si la upstream puso 0, lo pasamos TAL CUAL como puntero nulo (0),
+            # sin convertirlo a string, sin "00:00...", sin "000000...", etc.
+            if isinstance(mac, ctypes.c_void_p):
+                # Ya viene como c_void_p(0) desde convert_mac_for_dll
+                mac_bytes = mac
+                log.info("CE_GenerateSectorData: MAC -> c_void_p(0) (sin restricción)")
+            elif mac == 0:
+                mac_bytes = ctypes.c_void_p(0)  # TAL CUAL (equivale a 0 en la ABI)
+                log.info("CE_GenerateSectorData: MAC -> 0 (c_void_p(0))")
+            elif mac is None:
+                # si te llegara None explícito, también puntero nulo
+                mac_bytes = ctypes.c_void_p(0)
+                log.info("CE_GenerateSectorData: MAC -> None (c_void_p(0))")
+            elif isinstance(mac, (bytes, bytearray)):
+                mac_bytes = ctypes.c_char_p(bytes(mac))
+                log.info(f"CE_GenerateSectorData: MAC bytes -> {mac!r}")
+            else:
+                # para strings u otros tipos no-0: pásalo tal cual en ASCII
+                mac_bytes = ctypes.c_char_p(str(mac).encode("ascii"))
+                log.info(f"CE_GenerateSectorData: MAC str -> {mac}")
 
             # Call the DLL function.
             result = self.card_encoder_dll.CE_GenerateSectorData(

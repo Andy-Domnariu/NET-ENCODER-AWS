@@ -14,15 +14,15 @@ def configure_production_logging():
     from src.lib.utils.logger import configure_global_logging
     
     # PASO 1: Configurar CRITICAL con la función mejorada
-    configure_global_logging('CRITICAL')
+    configure_global_logging('DEBUG')
     
     # PASO 2: Limpiar handlers existentes que puedan interferir
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
     
-    # PASO 3: Configurar nivel CRITICAL en todos lados
-    logging.getLogger().setLevel(logging.CRITICAL)
-    logging.getLogger('revalidador').setLevel(logging.CRITICAL)
+    # PASO 3: Configurar nivel en todos lados
+    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger('revalidador').setLevel(logging.DEBUG)
     
     # PASO 4: Silenciar módulos específicos completamente
     modules_to_silence = [
@@ -38,11 +38,11 @@ def configure_production_logging():
     
     for module in modules_to_silence:
         logger = logging.getLogger(module)
-        logger.setLevel(logging.CRITICAL)
+        logger.setLevel(logging.DEBUG)
         logger.propagate = False  # No propagar a padres
         # Silenciar también sus handlers
         for handler in logger.handlers:
-            handler.setLevel(logging.CRITICAL)
+            handler.setLevel(logging.DEBUG)
     
     print("🔇 Producción: Logging ULTRASILENCIOSO activado - Logger personalizado corregido")
 

@@ -13,8 +13,8 @@ try:
 except ImportError:
     print("⚠️ Configurando logging básico silencioso")
     import logging
-    logging.basicConfig(level=logging.CRITICAL)
-    logging.getLogger().setLevel(logging.CRITICAL)
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger().setLevel(logging.DEBUG)
 
 
 def main():

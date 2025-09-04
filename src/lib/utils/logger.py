@@ -1,6 +1,6 @@
 import logging
 import sys
-
+# from src.lib.utils.log_db_handler import DBLogHandler  # Comentado para evitar dependencia de Django
 
 class CustomLogHandler(logging.Handler):
     """Handler personalizado que RESPETA niveles de logging"""
@@ -8,8 +8,8 @@ class CustomLogHandler(logging.Handler):
     def __init__(self, source="UNKNOWN"):
         super().__init__()
         self.source = source
-        # Configurar nivel inicial CRITICAL
-        self.setLevel(logging.CRITICAL)
+        # Configurar nivel inicial 
+        self.setLevel(logging.DEBUG)
         
     def emit(self, record):
         # SOLO imprimir si el nivel lo permite
@@ -39,7 +39,7 @@ class Logger:
             
             # RESPETAR nivel del logger padre (revalidador)
             parent_logger = logging.getLogger("revalidador")
-            current_level = parent_logger.level or logging.CRITICAL
+            current_level = parent_logger.level
             
             # Configurar nivel en ambos: logger y handler
             self.logger.setLevel(current_level)
@@ -66,7 +66,7 @@ class Logger:
         self.logger.debug(message)
 
 # Configuración global de logging para toda la aplicación
-def configure_global_logging(level='INFO'):
+def configure_global_logging(level='DEBUG'):
     """
     Configura el nivel de logging para toda la aplicación
     Niveles: DEBUG, INFO, WARNING, ERROR, CRITICAL

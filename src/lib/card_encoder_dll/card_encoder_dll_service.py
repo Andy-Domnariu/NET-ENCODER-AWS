@@ -4,8 +4,20 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.
 from typing import Optional
 from src.lib.utils.logger import Logger
 from src.lib.card_encoder_dll.card_encoder_dll_interface import CardEncoderDLLInterface
+from src.lib.utils.mac import normalize_mac_or_comodín_nullish, comodín, convert_mac_for_dll
 
 log = Logger("card_encoder_dll_service")
+
+def _normalize_or_400(input_mac):
+    """Normaliza MAC o falla con ValueError para manejar como 400 Bad Request."""
+    try:
+        mac_raw = normalize_mac_or_comodín_nullish(input_mac)
+        log.info(f"Normalized MAC input={input_mac!r} -> {mac_raw}")
+        return mac_raw
+    except ValueError as e:
+        log.warning(f"Invalid MAC: {input_mac!r} ({e})")
+        # Elevar ValueError para que se maneje como 400 Bad Request en la capa superior
+        raise ValueError(f"mac inválida: {input_mac}")
 
 class CardEncoderDLLService:
     def __init__(self):
@@ -78,7 +90,7 @@ class CardEncoderDLLService:
             entry_type = item["type"]
 
             # Extract necessary values
-            mac_raw = item.get("mac", "").replace(":", "") if entry_type == "whitelist" else None
+            mac_raw = item.get("mac", "") if entry_type == "whitelist" else None
             
             # Handle UID conversion safely
             uid_decimal = None
@@ -110,12 +122,13 @@ class CardEncoderDLLService:
                 allow_lock_out = int(bool(item.get("allow_lock_out") or item.get("allowLockOut") or False))
 
                 mac_raw = item.get("mac", "")
-                mac_raw_str = str(mac_raw)
-
-                if mac_raw_str in ("", "00000000", "0"):
-                    mac_raw = "5F638A2E6321"
-                else:
-                    mac_raw = mac_raw_str
+                # ⛔️ IMPORTANTE: usar la función robusta que maneja todos los casos "sin restricción"
+                try:
+                    mac_raw = convert_mac_for_dll(mac_raw)
+                except ValueError as e:
+                    # Si falla la conversión, usar comodín pero logear el error
+                    log.error(f"MAC inválida en whitelist entry {i + 1}: {e}")
+                    mac_raw = comodín
                                   
                 log.info("Calling DLL for whitelist: ")
                 log.info(f"hotel_info={hotel_info},"

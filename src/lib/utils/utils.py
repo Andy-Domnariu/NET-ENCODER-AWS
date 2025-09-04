@@ -1,5 +1,6 @@
 from datetime import datetime
 from src.lib.omnitec_crypto.omnitec_crypto import OmnitecCrypto
+from src.lib.utils.mac import normalize_mac
 
 class Utils:
     """
@@ -171,16 +172,19 @@ class Utils:
     
     @staticmethod
     def normalize_mac(mac: str | list[str]) -> str | list[str]:
-        if not mac:
-            return ""
-
-        def clean(m):
-            return m.replace(":", "").replace("-", "").replace(".", "").upper()
-
-        if isinstance(mac, list):
-            return [clean(m) for m in mac]
+        """
+        Normaliza direcciones MAC usando el nuevo normalizador centralizado.
+        Maneja: 0, "0", "00:00:00:00:00:00", "55:c0:b6:d0:91:61", "55c0b6d09161", 0x55C0...
         
-        return clean(mac)    
+        Args:
+            mac: MAC en cualquier formato válido o lista de MACs
+            
+        Returns:
+            MAC normalizada en formato hexadecimal continuo o INVALID MAC (cadena vacía)
+        """
+        if isinstance(mac, list):
+            return [normalize_mac(m) for m in mac]
+        return normalize_mac(mac)    
 
     @staticmethod
     def sign(last_func: str, err_code: int, uid: str) -> str:
